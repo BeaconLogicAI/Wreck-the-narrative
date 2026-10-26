@@ -1,0 +1,29 @@
+name: Scheduled site rebuild
+
+# Rebuilds the site on a schedule so new Podbean episodes appear automatically.
+# The site pulls the podcast RSS feed at build time, so a rebuild is all it takes.
+#
+# Setup (one time):
+#   1. Netlify → Site configuration → Build & deploy → Build hooks → Add build hook
+#      (name it "scheduled-rebuild", branch "main"). Copy the URL.
+#   2. GitHub → this repo → Settings → Secrets and variables → Actions →
+#      New repository secret → name: NETLIFY_BUILD_HOOK, value: that URL.
+
+on:
+  schedule:
+    - cron: '0 13 * * *'   # every day at 13:00 UTC (~6am PT) — picks up new episodes
+  workflow_dispatch: {}     # manual "Run workflow" button for an instant rebuild
+
+jobs:
+  trigger-netlify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Netlify build hook
+        env:
+          HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::NETLIFY_BUILD_HOOK secret is not set. Add it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          curl -fsS -X POST "$HOOK" && echo "Triggered a Netlify rebuild."
