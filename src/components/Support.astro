@@ -1,0 +1,37 @@
+---
+// "Support the show" — monthly listener support via Podbean Patron.
+// Buttons link to SUPPORT_URL; while it's empty they show as "coming soon".
+import { SUPPORT_URL, SUPPORT_TIERS } from '../lib/site';
+---
+<section class="support" id="support">
+  <div class="shell">
+    <span class="kicker" data-io>Support the show</span>
+    <h2 data-io>Keep the truth <em>free and coming.</em></h2>
+    <p class="support-sub" data-io>Wreck the Narrative is listener-supported. If the show is feeding you, help us keep making it &mdash; and keep it free for the next person who needs to hear it. Pick a monthly amount, or give what you can.</p>
+
+    <div class="tiers" data-io>
+      {SUPPORT_URL
+        ? SUPPORT_TIERS.map((t, i) => (
+            <a class={`btn ${i === 0 ? 'btn-primary' : 'btn-ghost'}`} href={SUPPORT_URL} target="_blank" rel="noopener">{t.label}</a>
+          ))
+        : SUPPORT_TIERS.map((t) => (
+            <span class="btn btn-ghost soon-btn">{t.label}<small>coming soon</small></span>
+          ))
+      }
+    </div>
+
+    <p class="support-note" data-io>Secure monthly support through Podbean Patron. Cancel anytime.</p>
+  </div>
+</section>
+
+<style>
+  .support { position: relative; isolation: isolate; padding: clamp(4rem, 12vh, 7rem) 0; border-top: 1px solid var(--line-soft); overflow: hidden; }
+  .support::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(120% 130% at 88% 0%, oklch(0.645 0.215 38 / .14), transparent 55%); }
+  .support h2 { font-family: "Archivo Black"; font-size: clamp(2rem, 6vw, 3.6rem); letter-spacing: -.02em; line-height: 1.04; margin: .8rem 0 1rem; max-width: 16ch; }
+  .support h2 em { font-style: normal; color: var(--flame); }
+  .support-sub { color: var(--ink-dim); max-width: 54ch; margin: 0 0 2rem; font-size: 1.05rem; }
+  .tiers { display: flex; flex-wrap: wrap; gap: .85rem; align-items: center; }
+  .support .soon-btn { opacity: .6; cursor: default; gap: .5rem; }
+  .support .soon-btn small { font-family: "Oswald"; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; font-size: .62em; color: var(--steel); }
+  .support-note { margin: 1.4rem 0 0; font-size: .82rem; color: var(--steel); }
+</style>

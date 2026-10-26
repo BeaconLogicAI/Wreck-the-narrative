@@ -36,6 +36,15 @@ export const ANALYTICS: { provider: '' | 'plausible' | 'fathom' | 'ga4'; id: str
   id: '', // Plausible/Fathom domain or GA4 measurement id
 };
 
+// TODO(john): Podbean Patron page URL (Podbean dashboard → Monetization → Patron).
+// Empty => the Support buttons render as non-clickable "coming soon".
+export const SUPPORT_URL = '';
+export const SUPPORT_TIERS: { label: string }[] = [
+  { label: '$5 / mo' },
+  { label: '$10 / mo' },
+  { label: 'Any amount' },
+];
+
 export type IconName =
   | 'apple' | 'spotify' | 'youtube' | 'rumble' | 'rss'
   | 'x' | 'instagram' | 'play' | 'bell' | 'arrow' | 'mail';
@@ -70,6 +79,7 @@ export const nav = [
   { label: 'Episodes', href: '/episodes' },
   { label: 'About', href: '/about' },
   { label: 'Subscribe', href: '/subscribe' },
+  { label: 'Support', href: '/support' },
   { label: 'Contact', href: '/contact' },
 ];
 
