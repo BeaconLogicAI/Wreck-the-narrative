@@ -1,7 +1,8 @@
 ---
-// "Support the show" — monthly listener support via Podbean Patron.
-// Buttons link to SUPPORT_URL; while it's empty they show as "coming soon".
-import { SUPPORT_URL, SUPPORT_TIERS } from '../lib/site';
+// "Support the show" — monthly listener support via Stripe payment links.
+// Each tier links to its own Stripe payment link; while a link is empty the
+// button shows as "coming soon", so tiers can go live independently.
+import { SUPPORT_TIERS } from '../lib/site';
 ---
 <section class="support" id="support">
   <div class="shell">
@@ -10,17 +11,16 @@ import { SUPPORT_URL, SUPPORT_TIERS } from '../lib/site';
     <p class="support-sub" data-io>Wreck the Narrative is listener-supported. If the show is feeding you, help us keep making it &mdash; and keep it free for the next person who needs to hear it. Pick a monthly amount, or give what you can.</p>
 
     <div class="tiers" data-io>
-      {SUPPORT_URL
-        ? SUPPORT_TIERS.map((t, i) => (
-            <a class={`btn ${i === 0 ? 'btn-primary' : 'btn-ghost'}`} href={SUPPORT_URL} target="_blank" rel="noopener">{t.label}</a>
-          ))
-        : SUPPORT_TIERS.map((t) => (
-            <span class="btn btn-ghost soon-btn">{t.label}<small>coming soon</small></span>
-          ))
-      }
+      {SUPPORT_TIERS.map((t, i) =>
+        t.url ? (
+          <a class={`btn ${i === 0 ? 'btn-primary' : 'btn-ghost'}`} href={t.url} target="_blank" rel="noopener">{t.label}</a>
+        ) : (
+          <span class="btn btn-ghost soon-btn">{t.label}<small>coming soon</small></span>
+        )
+      )}
     </div>
 
-    <p class="support-note" data-io>Secure monthly support through Podbean Patron. Cancel anytime.</p>
+    <p class="support-note" data-io>Secure checkout through Stripe. Monthly plans cancel anytime.</p>
   </div>
 </section>
 

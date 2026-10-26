@@ -36,13 +36,17 @@ export const ANALYTICS: { provider: '' | 'plausible' | 'fathom' | 'ga4'; id: str
   id: '', // Plausible/Fathom domain or GA4 measurement id
 };
 
-// TODO(john): Podbean Patron page URL (Podbean dashboard → Monetization → Patron).
-// Empty => the Support buttons render as non-clickable "coming soon".
-export const SUPPORT_URL = '';
-export const SUPPORT_TIERS: { label: string }[] = [
-  { label: '$5 / mo' },
-  { label: '$10 / mo' },
-  { label: 'Any amount' },
+// Monthly support via Stripe payment links. Create each link in the Stripe
+// Dashboard → Payment links, then paste its URL here. Empty url => "coming soon".
+// TODO(john): Stripe payment links.
+//   - $5/mo and $10/mo are RECURRING (subscription) price links.
+//   - "Any amount" is a one-time "customer chooses what to pay" link
+//     (Stripe recurring links require a fixed price, so custom = one-time).
+export interface SupportTier { label: string; url: string; recurring: boolean; }
+export const SUPPORT_TIERS: SupportTier[] = [
+  { label: '$5 / mo',    url: '', recurring: true },
+  { label: '$10 / mo',   url: '', recurring: true },
+  { label: 'Any amount', url: '', recurring: false },
 ];
 
 export type IconName =
