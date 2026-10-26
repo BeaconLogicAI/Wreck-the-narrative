@@ -1,0 +1,33 @@
+---
+import { Image } from 'astro:assets';
+import logoWordmark from '../assets/logo-wordmark.png';
+import Icon from './Icon.astro';
+import { socials, SITE_TAGLINE, SITE_NAME, nav } from '../lib/site';
+const year = new Date().getFullYear();
+---
+<footer>
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-mark">
+        <Image class="foot-wm" src={logoWordmark} alt={SITE_NAME} widths={[340, 680]} />
+        <small>{SITE_TAGLINE}</small>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:1rem; align-items:flex-end;">
+        <nav class="foot-nav" aria-label="Footer">
+          {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+        </nav>
+        <div class="foot-social" aria-label="Follow the show">
+          {socials.map((s) =>
+            s.url
+              ? <a href={s.url} title={s.name} aria-label={s.name} target="_blank" rel="noopener"><Icon name={s.icon} /></a>
+              : <span title={`${s.name} — coming soon`} aria-label={`${s.name} (coming soon)`}><Icon name={s.icon} /></span>
+          )}
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; {year} {SITE_NAME}. All rights reserved.</span>
+      <span>Truth doesn't bend. Neither do we.</span>
+    </div>
+  </div>
+</footer>

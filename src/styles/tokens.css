@@ -1,0 +1,22 @@
+/* ============================================================
+   WRECK THE NARRATIVE — design tokens
+   Ported verbatim from the hand-built landing page.
+   Warm near-black canvas, flame-orange signal color.
+   ============================================================ */
+:root{
+  --ink:        oklch(0.97 0.006 70);   /* warm off-white text */
+  --ink-dim:    oklch(0.78 0.010 60);
+  --bg:         oklch(0.155 0.012 45);  /* warm near-black canvas */
+  --bg-2:       oklch(0.195 0.014 45);  /* raised panel */
+  --bg-3:       oklch(0.235 0.014 45);
+  --flame:      oklch(0.645 0.215 38);  /* signature orange */
+  --flame-hot:  oklch(0.715 0.205 44);
+  --steel:      oklch(0.66 0.012 55);   /* gray labels, "THE" */
+  --steel-dim:  oklch(0.50 0.012 55);
+  --line:       oklch(0.32 0.012 45);   /* hairlines */
+  --line-soft:  oklch(0.26 0.012 45);
+
+  --maxw: 1180px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);   /* ease-out-quint */
+  --shell: clamp(1.15rem, 5vw, 4.5rem);
+}

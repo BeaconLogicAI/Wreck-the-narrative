@@ -1,0 +1,23 @@
+---
+import Icon from './Icon.astro';
+import { platforms as allPlatforms, type PlatformLink } from '../lib/site';
+interface Props { items?: PlatformLink[]; }
+const { items = allPlatforms } = Astro.props;
+---
+<div class="platforms">
+  {items.map((p) =>
+    p.url ? (
+      <a class="platform" href={p.url} target="_blank" rel="noopener" data-io>
+        <span class="ic"><Icon name={p.icon} /></span>
+        <span class="txt"><small>{p.action}</small><strong>{p.name}</strong></span>
+        <span class="arr"><Icon name="arrow" /></span>
+      </a>
+    ) : (
+      <div class="platform disabled" data-io>
+        <span class="ic"><Icon name={p.icon} /></span>
+        <span class="txt"><small>{p.action}</small><strong>{p.name}</strong></span>
+        <span class="soon">Coming soon</span>
+      </div>
+    )
+  )}
+</div>

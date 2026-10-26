@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO(john): confirm domain, then this resolves correctly.
+Sitemap: https://www.wreckthenarrative.com/sitemap-index.xml

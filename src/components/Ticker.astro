@@ -1,0 +1,9 @@
+---
+const items = ['Truth Still Exists', 'Sin Is Real', 'Jesus Is Needed', 'Life to the Full', 'Inside Out', 'Follow the Facts'];
+const doubled = [...items, ...items];
+---
+<div class="ticker" data-io aria-hidden="true">
+  <div class="track">
+    {doubled.map((t) => <span>{t}</span>)}
+  </div>
+</div>

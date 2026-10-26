@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlatformLinks from '../../components/PlatformLinks.astro';
+import { getEpisodes, type FeedEpisode } from '../../lib/rss';
+import { SITE_URL, SITE_NAME, HOST_NAME } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const episodes = await getEpisodes();
+  return episodes.map((episode, i) => ({
+    params: { slug: episode.slug },
+    props: {
+      episode,
+      prev: episodes[i - 1] ?? null, // newer
+      next: episodes[i + 1] ?? null, // older
+    },
+  }));
+}
+
+interface Props { episode: FeedEpisode; prev: FeedEpisode | null; next: FeedEpisode | null; }
+const { episode, prev, next } = Astro.props;
+const label = episode.episodeNumber ? `Episode ${episode.episodeNumber}` : 'Episode';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'PodcastEpisode',
+  name: episode.title,
+  url: new URL(`/episodes/${episode.slug}`, SITE_URL).href,
+  datePublished: episode.pubDateISO ?? undefined,
+  description: episode.summary,
+  ...(episode.audioUrl
+    ? { associatedMedia: { '@type': 'MediaObject', contentUrl: episode.audioUrl } }
+    : {}),
+  partOfSeries: { '@type': 'PodcastSeries', name: SITE_NAME, url: SITE_URL },
+  author: { '@type': 'Person', name: HOST_NAME },
+};
+---
+<BaseLayout
+  title={episode.title}
+  description={episode.summary || `An episode of ${SITE_NAME}.`}
+  ogType="article"
+  ogImage={episode.image ?? '/og-default.png'}
+  jsonLd={jsonLd}
+>
+  <article class="section ep-detail">
+    <div class="shell prose">
+      <p><a href="/episodes" style="color:var(--steel);">&larr; All episodes</a></p>
+      <span class="kicker">{label}</span>
+      <h1 style="font-family:'Archivo Black'; font-size:clamp(1.8rem,5vw,3rem); letter-spacing:-.02em; line-height:1.08; margin:.6rem 0 0;">{episode.title}</h1>
+      <div class="meta-row">
+        {episode.dateLabel && <span>{episode.dateLabel}</span>}
+        {episode.duration && <span>{episode.duration}</span>}
+      </div>
+
+      {episode.audioUrl && (
+        <audio controls preload="none" src={episode.audioUrl}>
+          Your browser doesn't support audio playback.
+        </audio>
+      )}
+
+      {episode.youtube && (
+        <div class="ep-embed">
+          <iframe src={episode.youtube} title={`${episode.title} — video`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+      )}
+
+      <div class="show-notes" set:html={episode.description} />
+
+      <div class="sources">
+        <h2>Sources &amp; references</h2>
+        <!-- TODO(john): per-episode sources enriched from the outline/fact-sheet files. -->
+        <p style="color:var(--steel);">Sources for this episode will be listed here. Every factual claim on the show is documented.</p>
+      </div>
+
+      <div style="margin-top:2.5rem;">
+        <span class="kicker">Keep listening</span>
+        <PlatformLinks />
+      </div>
+
+      <nav class="ep-nav">
+        {prev ? <a href={`/episodes/${prev.slug}`}>&larr; Newer</a> : <span></span>}
+        {next ? <a href={`/episodes/${next.slug}`}>Older &rarr;</a> : <span></span>}
+      </nav>
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,95 @@
+---
+import '../styles/tokens.css';
+import '../styles/global.css';
+import GrainOverlay from '../components/GrainOverlay.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, ANALYTICS } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  ogImage = '/og-default.png',
+  ogType = 'website',
+  jsonLd,
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — with John Hansman`;
+const canonical = new URL(Astro.url.pathname, SITE_URL).href;
+const ogImageAbs = new URL(ogImage, SITE_URL).href;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <meta name="theme-color" content="#1a1410" />
+
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:site_name" content={SITE_NAME} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImageAbs} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImageAbs} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+  {/* TODO(john): privacy-friendly analytics — set ANALYTICS in src/lib/site.ts */}
+  {ANALYTICS.provider === 'plausible' && ANALYTICS.id && (
+    <script is:inline defer data-domain={ANALYTICS.id} src="https://plausible.io/js/script.js"></script>
+  )}
+  {ANALYTICS.provider === 'fathom' && ANALYTICS.id && (
+    <script is:inline defer src="https://cdn.usefathom.com/script.js" data-site={ANALYTICS.id}></script>
+  )}
+  {ANALYTICS.provider === 'ga4' && ANALYTICS.id && (
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${ANALYTICS.id}`}></script>
+  )}
+</head>
+<body>
+  <GrainOverlay />
+  <Nav />
+  <main id="top">
+    <slot />
+  </main>
+  <Footer />
+
+  <script is:inline>
+    // Scroll-in reveals (honors prefers-reduced-motion via CSS).
+    (function () {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      document.querySelectorAll('section, .ticker').forEach(function (s) { io.observe(s); });
+    })();
+  </script>
+</body>
+</html>

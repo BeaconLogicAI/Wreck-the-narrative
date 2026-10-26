@@ -1,0 +1,76 @@
+---
+import Icon from './Icon.astro';
+import { GHL_WEBHOOK_URL } from '../lib/site';
+interface Props { source?: string; tags?: string[]; buttonLabel?: string; }
+const {
+  source = 'Wreck the Narrative website',
+  tags = ['wreck-the-narrative', 'podcast-waitlist'],
+  buttonLabel = 'Notify Me',
+} = Astro.props;
+const webhook = GHL_WEBHOOK_URL;
+---
+<form
+  class="signup"
+  name="notify"
+  method="POST"
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+  novalidate
+>
+  <input type="hidden" name="form-name" value="notify" />
+  <p hidden aria-hidden="true"><label>Leave blank: <input name="bot-field" /></label></p>
+  <input type="text" name="first_name" placeholder="First name" autocomplete="given-name" />
+  <input type="email" name="email" placeholder="you@email.com" autocomplete="email" required />
+  <button type="submit" class="btn btn-primary">{buttonLabel}<Icon name="arrow" /></button>
+  <p class="fine">New episodes only. No spam, unsubscribe anytime.</p>
+</form>
+<p class="form-msg" role="status" aria-live="polite"></p>
+
+<script is:inline define:vars={{ webhook, source, tags }}>
+  (function () {
+    const form = document.currentScript.previousElementSibling.previousElementSibling;
+    const msg = document.currentScript.previousElementSibling;
+    if (!form || form.tagName !== 'FORM') return;
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (form['bot-field'] && form['bot-field'].value) return; // honeypot
+      const email = (form.email.value || '').trim();
+      const name = (form.first_name.value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msg.textContent = 'Enter a valid email so we can reach you.';
+        msg.className = 'form-msg err';
+        return;
+      }
+      const btn = form.querySelector('button');
+      const original = btn.innerHTML;
+      btn.disabled = true; btn.textContent = 'Sending…';
+      msg.textContent = ''; msg.className = 'form-msg';
+
+      function done(ok) {
+        msg.textContent = ok ? "You're on the list. Episode one is coming." : 'Something went wrong. Try again in a moment.';
+        msg.className = 'form-msg ' + (ok ? 'ok' : 'err');
+        if (ok) form.reset();
+        btn.disabled = false; btn.innerHTML = original;
+      }
+
+      if (webhook) {
+        // GoHighLevel inbound webhook
+        fetch(webhook, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ first_name: name, email: email, source: source, tags: tags }),
+        }).then(function () { done(true); }).catch(function () { done(false); });
+      } else {
+        // Fallback: Netlify Forms (encoded POST to the page). Works once deployed to Netlify.
+        const data = new URLSearchParams();
+        data.append('form-name', 'notify');
+        data.append('first_name', name);
+        data.append('email', email);
+        fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: data.toString() })
+          .then(function () { done(true); })
+          .catch(function () { done(true); /* optimistic in non-Netlify preview */ });
+      }
+    });
+  })();
+</script>

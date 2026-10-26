@@ -1,0 +1,31 @@
+---
+// "Also on the board" — topic vault grouped by lane. No dates.
+import { topicVault, lanes } from '../data/topic-vault';
+interface Props { max?: number; }
+const { max = 8 } = Astro.props;
+const byLane = lanes.map((lane) => ({
+  lane,
+  topics: topicVault.filter((t) => t.lane === lane),
+}));
+// keep the strip compact: cap total shown
+let shown = 0;
+---
+<section class="board">
+  <div class="shell">
+    <span class="kicker steel" data-io>Also on the board</span>
+    <h2 data-io>Coming up on the show</h2>
+    <div class="lanes">
+      {byLane.map(({ lane, topics }) => {
+        const list = topics.filter(() => (shown < max ? (shown++, true) : false));
+        return list.length > 0 ? (
+          <div class="lane-col" data-io>
+            <h3>{lane}</h3>
+            <div class="chips">
+              {list.map((t) => <div class="chip">{t.title}</div>)}
+            </div>
+          </div>
+        ) : null;
+      })}
+    </div>
+  </div>
+</section>

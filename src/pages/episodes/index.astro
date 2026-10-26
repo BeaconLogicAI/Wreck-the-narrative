@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EpisodeCard from '../../components/EpisodeCard.astro';
+import NotifyForm from '../../components/NotifyForm.astro';
+import { getEpisodes } from '../../lib/rss';
+import { openingArc } from '../../data/opening-arc';
+
+const episodes = await getEpisodes();
+---
+<BaseLayout title="Episodes" description="Every episode of Wreck the Narrative — one lie named and wrecked at a time, on a John 10:10 spine.">
+  <section class="page-hero">
+    <div class="shell">
+      <span class="kicker">Episodes</span>
+      <h1>One lie at a time. <em>Wrecked with the gospel.</em></h1>
+      <p class="lede">
+        {episodes.length
+          ? 'Every episode names a lie — in our own hearts first, then in the culture — and tests it against what Jesus says.'
+          : 'Episode one is almost here. Below is the locked opening arc. Get alerts and you’ll catch the first drop.'}
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      {episodes.length ? (
+        <div class="ep-grid">
+          {episodes.map((ep) => <EpisodeCard episode={ep} />)}
+        </div>
+      ) : (
+        <>
+          <div class="episodes" style="padding-top:0;">
+            {openingArc.map((ep) => (
+              <article class="ep" data-io>
+                <div class="epnum">{ep.number}</div>
+                <div class="epbody">
+                  <h3>{ep.title}</h3>
+                  <p>{ep.blurb}</p>
+                  <span class="lane">{ep.lane}</span>
+                </div>
+                <div class="epmeta"><span class="tag">Coming Soon</span></div>
+              </article>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  </section>
+
+  {episodes.length === 0 && (
+    <section class="notify">
+      <div class="shell">
+        <span class="kicker" data-io>Be first</span>
+        <h2 data-io>Episode one is <em>almost here.</em></h2>
+        <p class="sub" data-io>Join the list and we'll send it the moment it lands.</p>
+        <NotifyForm source="Wreck the Narrative episodes page" />
+      </div>
+    </section>
+  )}
+</BaseLayout>

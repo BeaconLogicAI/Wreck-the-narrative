@@ -1,0 +1,29 @@
+---
+import { Image } from 'astro:assets';
+import logoWordmark from '../assets/logo-wordmark.png';
+import Icon from './Icon.astro';
+import Ticker from './Ticker.astro';
+import { statusLabel } from '../lib/site';
+---
+<section class="hero">
+  <div class="shell hero-stack">
+    <div class="status"><span class="dot"></span> {statusLabel}</div>
+
+    <Image class="hero-wordmark" src={logoWordmark} alt="Wreck the Narrative" widths={[560, 1120]} loading="eager" />
+
+    <h1 class="hero-headline">They say sin isn't real and Jesus isn't needed. <em>Both are lies.</em></h1>
+
+    <p class="hero-lede">
+      The enemy comes to steal, kill and destroy. Jesus came to give life. Every week John Hansman
+      names a lie we've been sold &mdash; <b>in our own hearts first, then in the culture</b> &mdash;
+      and wrecks it with the truth of the gospel.
+    </p>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/subscribe"><Icon name="play" /> Start Listening</a>
+      <a class="btn btn-ghost" href="/subscribe"><Icon name="bell" /> Get New Episode Alerts</a>
+    </div>
+  </div>
+
+  <Ticker />
+</section>

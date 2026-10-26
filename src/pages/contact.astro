@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { GHL_WEBHOOK_URL } from '../lib/site';
+const webhook = GHL_WEBHOOK_URL;
+---
+<BaseLayout title="Contact" description="Push back. Send a topic. Ask the hard question. We read everything.">
+  <section class="page-hero">
+    <div class="shell">
+      <span class="kicker">Contact</span>
+      <h1>Push back. Send a topic. <em>Ask the hard question.</em></h1>
+      <p class="lede">The show is a conversation. Send a topic you want wrecked, a question you want answered on air, or tell us where you think we got it wrong.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <form class="form-grid" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+        <input type="hidden" name="form-name" value="contact" />
+        <p hidden aria-hidden="true"><label>Leave blank: <input name="bot-field" /></label></p>
+        <div class="field">
+          <label for="c-name">Name</label>
+          <input id="c-name" type="text" name="name" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="c-email">Email</label>
+          <input id="c-email" type="email" name="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="c-type">What is this?</label>
+          <select id="c-type" name="type">
+            <option>Topic idea</option>
+            <option>Question for the show</option>
+            <option>Push back</option>
+            <option>Prayer request</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="c-message">Message</label>
+          <textarea id="c-message" name="message" required></textarea>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">Send it <Icon name="arrow" /></button>
+        </div>
+        <p class="fine">We read everything. We may answer your question on air, and we'll never use your name without asking.</p>
+      </form>
+      <p class="form-msg" id="contactMsg" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ webhook }}>
+    (function () {
+      const form = document.querySelector('form[name="contact"]');
+      const msg = document.getElementById('contactMsg');
+      if (!form) return;
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        if (form['bot-field'] && form['bot-field'].value) return;
+        const email = (form.email.value || '').trim();
+        const message = (form.message.value || '').trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          msg.textContent = 'Enter a valid email so we can reach you.'; msg.className = 'form-msg err'; return;
+        }
+        if (!message) { msg.textContent = 'Add a message so we know what to do with it.'; msg.className = 'form-msg err'; return; }
+        const btn = form.querySelector('button');
+        const original = btn.innerHTML;
+        btn.disabled = true; btn.textContent = 'Sending…'; msg.textContent = ''; msg.className = 'form-msg';
+        function done(ok) {
+          msg.textContent = ok ? 'Got it. Thanks for sending this in.' : 'Something went wrong. Try again in a moment.';
+          msg.className = 'form-msg ' + (ok ? 'ok' : 'err');
+          if (ok) form.reset();
+          btn.disabled = false; btn.innerHTML = original;
+        }
+        const payload = {
+          name: (form.name.value || '').trim(),
+          email: email,
+          type: form.type.value,
+          message: message,
+          source: 'Wreck the Narrative contact page',
+          tags: ['wreck-the-narrative', 'contact'],
+        };
+        if (webhook) {
+          fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+            .then(function () { done(true); }).catch(function () { done(false); });
+        } else {
+          const data = new URLSearchParams();
+          data.append('form-name', 'contact');
+          Object.keys(payload).forEach(function (k) { if (k !== 'tags') data.append(k, payload[k]); });
+          fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: data.toString() })
+            .then(function () { done(true); }).catch(function () { done(true); });
+        }
+      });
+    })();
+  </script>
+</BaseLayout>

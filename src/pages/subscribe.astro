@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PlatformLinks from '../components/PlatformLinks.astro';
+import NotifyForm from '../components/NotifyForm.astro';
+---
+<BaseLayout title="Subscribe" description="Subscribe to Wreck the Narrative wherever you listen, and get an alert the moment episode one lands.">
+  <section class="page-hero">
+    <div class="shell">
+      <span class="kicker">Subscribe</span>
+      <h1>Hear it your way. <em>Catch every episode.</em></h1>
+      <p class="lede">Subscribe wherever you already listen, and join the list so you don't miss a drop — new episodes come weekly once the show goes live.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell" style="max-width:820px;">
+      <span class="kicker" data-io>Tune in</span>
+      <h2 data-io style="font-family:'Archivo Black'; font-size:clamp(1.6rem,4.5vw,2.6rem); letter-spacing:-.02em; margin:.6rem 0 0;">Every platform</h2>
+      <PlatformLinks />
+    </div>
+  </section>
+
+  <section class="notify">
+    <div class="shell">
+      <span class="kicker" data-io>Don't miss a drop</span>
+      <h2 data-io>Get the truth <em>before the algorithm buries it.</em></h2>
+      <p class="sub" data-io>Episode one is almost here. Join the list and we'll send it the moment it lands.</p>
+      <NotifyForm source="Wreck the Narrative subscribe page" />
+    </div>
+  </section>
+</BaseLayout>

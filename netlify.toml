@@ -1,0 +1,17 @@
+# Netlify deploy config — Astro static site.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# TODO(john): set PODCAST_RSS_URL and GHL webhook as env vars in the
+# Netlify dashboard (Site settings → Environment variables) if you'd
+# rather not hard-code them in src/lib/site.ts.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

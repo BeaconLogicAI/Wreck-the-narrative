@@ -1,0 +1,18 @@
+---
+import { Image } from 'astro:assets';
+import logoHeader from '../assets/logo-header.png';
+import { nav } from '../lib/site';
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+<header class="nav">
+  <a class="nav-mark" href="/" aria-label="Wreck the Narrative home">
+    <Image class="nav-logo" src={logoHeader} alt="Wreck the Narrative" widths={[140, 280]} loading="eager" />
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    {nav.map((item) => (
+      <a class="nav-link" href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+    ))}
+    <a class="nav-cta" href="/subscribe">Get Alerts</a>
+  </nav>
+</header>

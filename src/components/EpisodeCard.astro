@@ -1,0 +1,17 @@
+---
+import type { FeedEpisode } from '../lib/rss';
+interface Props { episode: FeedEpisode; }
+const { episode } = Astro.props;
+const label = episode.episodeNumber ? `Episode ${episode.episodeNumber}` : 'Episode';
+---
+<a class="ep-card" href={`/episodes/${episode.slug}`} data-io>
+  <div class="art">
+    {episode.image ? <img src={episode.image} alt={`${episode.title} cover art`} loading="lazy" /> : null}
+  </div>
+  <div class="body">
+    <span class="knum">{label}</span>
+    <h3>{episode.title}</h3>
+    {episode.summary ? <p>{episode.summary}</p> : null}
+    <span class="foot">{[episode.dateLabel, episode.duration].filter(Boolean).join(' · ')}</span>
+  </div>
+</a>

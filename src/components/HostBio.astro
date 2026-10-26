@@ -1,0 +1,23 @@
+---
+import { Image } from 'astro:assets';
+import hostHeadshot from '../assets/host-headshot.png';
+interface Props { panel?: boolean; }
+const { panel = false } = Astro.props;
+---
+<section class={`host${panel ? ' panel' : ''}`} id="host">
+  <div class="shell wrap">
+    <div class="portrait" data-io>
+      <Image src={hostHeadshot} alt="John Hansman, host of Wreck the Narrative" widths={[480, 960]} />
+      <span class="frame"></span>
+      <span class="badge">Host</span>
+    </div>
+    <div>
+      <span class="kicker" data-io>Your host</span>
+      <h2 data-io>John Hansman</h2>
+      <p data-io>John isn't a pastor or a pundit. He's a husband, a dad, a business owner and a follower of Jesus who got tired of the gap between what we're told and what's true.</p>
+      <p data-io>On this show he names the lies he's believed himself &mdash; and what Jesus says instead. No teleprompter. Plain questions, receipts and Scripture.</p>
+      <p data-io><b>God sets the standard, not man.</b></p>
+      <!-- TODO(john): confirm this bio before launch. -->
+    </div>
+  </div>
+</section>

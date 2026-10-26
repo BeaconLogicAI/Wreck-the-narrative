@@ -1,0 +1,13 @@
+{
+  "name": "Wreck the Narrative",
+  "short_name": "WTN",
+  "description": "A weekly gospel-first show with John Hansman.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1410",
+  "theme_color": "#1a1410",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

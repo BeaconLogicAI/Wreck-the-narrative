@@ -1,0 +1,101 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Manifesto from '../components/Manifesto.astro';
+import PlatformLinks from '../components/PlatformLinks.astro';
+import Board from '../components/Board.astro';
+import HostBio from '../components/HostBio.astro';
+import NotifyForm from '../components/NotifyForm.astro';
+import EpisodeCard from '../components/EpisodeCard.astro';
+import logoBadge from '../assets/logo-badge.png';
+import { openingArc } from '../data/opening-arc';
+import { platforms, SITE_URL, SITE_NAME, SITE_DESCRIPTION, HOST_NAME } from '../lib/site';
+import { getEpisodes } from '../lib/rss';
+
+const episodes = await getEpisodes();
+const latest = episodes.slice(0, 3);
+const homePlatforms = platforms.slice(0, 3); // Apple / Spotify / YouTube
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'PodcastSeries',
+  name: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+  image: new URL('/favicon-512.png', SITE_URL).href,
+  author: { '@type': 'Person', name: HOST_NAME },
+};
+---
+<BaseLayout jsonLd={jsonLd}>
+  <Hero />
+  <Manifesto />
+
+  <!-- LISTEN -->
+  <section class="listen" id="listen">
+    <div class="shell listen-wrap">
+      <div class="listen-art" data-io>
+        <span class="glow" aria-hidden="true"></span>
+        <Image class="listen-badge" src={logoBadge} alt="Wreck the Narrative show badge" widths={[360, 720]} />
+      </div>
+      <div class="listen-main">
+        <span class="kicker" data-io>Tune in</span>
+        <h2 data-io>Hear it your way</h2>
+        <p data-io style="color:var(--ink-dim); max-width:46ch; margin:0;">Subscribe wherever you already listen. New episodes drop weekly the moment the show goes live.</p>
+        <PlatformLinks items={homePlatforms} />
+      </div>
+    </div>
+  </section>
+
+  <!-- EPISODES -->
+  <section class="episodes" id="episodes">
+    <div class="shell">
+      <div class="head">
+        <div>
+          <span class="kicker" data-io>On the docket</span>
+          <h2 data-io>{latest.length ? 'Latest episodes' : 'First episodes'}</h2>
+        </div>
+        <p data-io style="color:var(--ink-dim); max-width:32ch; margin:0;">
+          {latest.length
+            ? 'The newest drops. See them all on the episodes page.'
+            : 'The locked opening arc. Six lies, one spine: John 10:10. Get alerts below so you catch episode one.'}
+        </p>
+      </div>
+
+      {latest.length ? (
+        <div class="ep-grid">
+          {latest.map((ep) => <EpisodeCard episode={ep} />)}
+        </div>
+      ) : (
+        openingArc.map((ep) => (
+          <article class="ep" data-io>
+            <div class="epnum">{ep.number}</div>
+            <div class="epbody">
+              <h3>{ep.title}</h3>
+              <p>{ep.blurb}</p>
+              <span class="lane">{ep.lane}</span>
+            </div>
+            <div class="epmeta"><span class="tag">Coming Soon</span></div>
+          </article>
+        ))
+      )}
+
+      {latest.length ? (
+        <p style="margin-top:2rem;"><a class="btn btn-ghost" href="/episodes">All episodes</a></p>
+      ) : null}
+    </div>
+  </section>
+
+  <Board />
+  <HostBio />
+
+  <!-- NOTIFY -->
+  <section class="notify" id="notify">
+    <div class="shell">
+      <span class="kicker" data-io>Don't miss a drop</span>
+      <h2 data-io>Get the truth <em>before the algorithm buries it.</em></h2>
+      <p class="sub" data-io>Episode one is almost here. Join the list and we'll send it the moment it lands.</p>
+      <NotifyForm source="Wreck the Narrative home page" />
+    </div>
+  </section>
+</BaseLayout>
