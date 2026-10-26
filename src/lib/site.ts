@@ -24,7 +24,7 @@ export const THEME_SONG_URL = '';
 
 // TODO(john): podcast RSS feed URL (host already chosen).
 // Empty or unreachable at build => pre-launch state (opening arc as "Coming soon").
-export const PODCAST_RSS_URL = '';
+export const PODCAST_RSS_URL = 'https://feed.podbean.com/wreckthenarrative/feed.xml';
 
 // TODO(john): GoHighLevel inbound webhook URL for email capture + contact form.
 // Empty => Netlify Forms fallback (see NotifyForm/contact form).
