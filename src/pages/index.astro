@@ -68,7 +68,7 @@ const jsonLd = {
           {latest.map((ep) => <EpisodeCard episode={ep} />)}
         </div>
       ) : (
-        openingArc.map((ep) => (
+        openingArc.slice(0, 6).map((ep) => (
           <article class="ep" data-io>
             <div class="epnum">{ep.number}</div>
             <div class="epbody">
@@ -76,14 +76,17 @@ const jsonLd = {
               <p>{ep.blurb}</p>
               <span class="lane">{ep.lane}</span>
             </div>
-            <div class="epmeta"><span class="tag">Coming Soon</span></div>
+            <div class="epmeta">
+              <span class="tag">Coming Soon</span>
+              {ep.scripture && <span class="date">{ep.scripture}</span>}
+            </div>
           </article>
         ))
       )}
 
-      {latest.length ? (
-        <p style="margin-top:2rem;"><a class="btn btn-ghost" href="/episodes">All episodes</a></p>
-      ) : null}
+      <p style="margin-top:2rem;">
+        <a class="btn btn-ghost" href="/episodes">{latest.length ? 'All episodes' : 'See the full arc'}</a>
+      </p>
     </div>
   </section>
 

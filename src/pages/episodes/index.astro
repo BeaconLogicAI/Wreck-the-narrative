@@ -37,7 +37,10 @@ const episodes = await getEpisodes();
                   <p>{ep.blurb}</p>
                   <span class="lane">{ep.lane}</span>
                 </div>
-                <div class="epmeta"><span class="tag">Coming Soon</span></div>
+                <div class="epmeta">
+                  <span class="tag">Coming Soon</span>
+                  {ep.scripture && <span class="date">{ep.scripture}</span>}
+                </div>
               </article>
             ))}
           </div>
