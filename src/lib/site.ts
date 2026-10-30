@@ -19,8 +19,9 @@ export const SITE_DESCRIPTION =
 // TODO(john): premiere date, e.g. 'July 2026'. Empty => the site says "Coming soon".
 export const PREMIERE_DATE = '';
 
-// TODO(john): theme-song URL. Empty => the "Hear the theme" button stays hidden.
-export const THEME_SONG_URL = '';
+// Theme song. Empty => the "Hear the theme" player stays hidden.
+export const THEME_SONG_URL = '/theme/wreck-the-narrative.mp3';
+export const THEME_SONG_TITLE = 'Wreck the Narrative — Theme';
 
 // TODO(john): podcast RSS feed URL (host already chosen).
 // Empty or unreachable at build => pre-launch state (opening arc as "Coming soon").

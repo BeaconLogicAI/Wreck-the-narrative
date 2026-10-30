@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import logoWordmark from '../assets/logo-wordmark.png';
 import Icon from './Icon.astro';
 import Ticker from './Ticker.astro';
+import ThemePlayer from './ThemePlayer.astro';
 import { statusLabel } from '../lib/site';
 ---
 <section class="hero">
@@ -23,6 +24,8 @@ import { statusLabel } from '../lib/site';
       <a class="btn btn-primary" href="/subscribe"><Icon name="play" /> Start Listening</a>
       <a class="btn btn-ghost" href="/subscribe"><Icon name="bell" /> Get New Episode Alerts</a>
     </div>
+
+    <div style="margin-top: clamp(1.5rem, 4vh, 2.2rem);"><ThemePlayer /></div>
   </div>
 
   <Ticker />

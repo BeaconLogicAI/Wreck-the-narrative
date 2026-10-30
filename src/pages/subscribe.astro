@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PlatformLinks from '../components/PlatformLinks.astro';
+import ThemePlayer from '../components/ThemePlayer.astro';
 import NotifyForm from '../components/NotifyForm.astro';
 ---
 <BaseLayout title="Subscribe" description="Subscribe to Wreck the Narrative wherever you listen, and get an alert the moment episode one lands.">
@@ -17,6 +18,10 @@ import NotifyForm from '../components/NotifyForm.astro';
       <span class="kicker" data-io>Tune in</span>
       <h2 data-io style="font-family:'Archivo Black'; font-size:clamp(1.6rem,4.5vw,2.6rem); letter-spacing:-.02em; margin:.6rem 0 0;">Every platform</h2>
       <PlatformLinks />
+      <div style="margin-top: clamp(2rem, 5vh, 2.8rem);">
+        <span class="kicker" data-io>While you wait</span>
+        <div style="margin-top: 1rem;"><ThemePlayer /></div>
+      </div>
     </div>
   </section>
 
