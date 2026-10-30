@@ -30,7 +30,9 @@ import { THEME_SONG_URL } from '../lib/site';
     const closeBtn = root.querySelector('.ftp-close') as HTMLButtonElement;
     const play = root.querySelector('.ftp-play') as SVGElement;
     const pause = root.querySelector('.ftp-pause') as SVGElement;
+    const label = root.querySelector('.ftp-label') as HTMLElement;
     if (!audio || !toggle) return;
+    const LABEL_DEFAULT = label ? label.textContent : 'Theme';
 
     const SS = window.sessionStorage;
     const key = (k: string) => `wtn-theme-${k}`;
@@ -75,8 +77,10 @@ import { THEME_SONG_URL } from '../lib/site';
       if (!audio.paused) set('time', String(audio.currentTime));
     });
 
+    function wake() { root.classList.remove('is-waiting'); if (label) label.textContent = LABEL_DEFAULT; }
+
     toggle.addEventListener('click', () => {
-      if (audio.paused) { set('paused', '0'); startPlayback(); }
+      if (audio.muted || audio.paused) { audio.muted = false; wake(); set('paused', '0'); startPlayback(); }
       else { set('paused', '1'); audio.pause(); }
     });
 
@@ -87,22 +91,30 @@ import { THEME_SONG_URL } from '../lib/site';
       root.hidden = true;
     });
 
-    // Autoplay attempt — unless the listener chose to pause it earlier.
+    // Autoplay. Browsers block audio with sound until the visitor interacts, so:
+    // 1) ALWAYS arm a one-time "first interaction anywhere" starter up front (never
+    //    gate it on the autoplay promise, which can hang while media is deprioritized),
+    // 2) try to play with sound now, and 3) if that's blocked, play MUTED (allowed)
+    //    so the pill comes alive with a "Tap for sound" cue until the gesture lands.
     if (!userPaused()) {
+      const events = ['pointerdown', 'keydown', 'touchend', 'click'];
+      const cleanup = () => events.forEach((ev) => window.removeEventListener(ev, onFirst));
+      const onFirst = () => {
+        if (userPaused()) return cleanup(); // they hit pause/close — respect it
+        audio.muted = false;
+        wake();
+        set('paused', '0');
+        startPlayback().catch(() => {});
+        cleanup();
+      };
+      events.forEach((ev) => window.addEventListener(ev, onFirst, { passive: true }));
+
       startPlayback().catch(() => {
-        // Blocked: wait for the first real interaction, then start once.
-        const kick = () => {
-          if (userPaused()) return cleanup();
-          startPlayback().then(cleanup).catch(() => {});
-        };
-        const cleanup = () => {
-          ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((ev) =>
-            window.removeEventListener(ev, kick)
-          );
-        };
-        ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((ev) =>
-          window.addEventListener(ev, kick, { once: false, passive: true })
-        );
+        // Sound-on blocked: go muted so the pill animates, and nudge for a tap.
+        audio.muted = true;
+        root.classList.add('is-waiting');
+        if (label) label.textContent = 'Tap for sound';
+        startPlayback().catch(() => {});
       });
     }
   })();
@@ -138,6 +150,10 @@ import { THEME_SONG_URL } from '../lib/site';
   }
   .ftp-toggle:hover { background: var(--flame-hot); transform: scale(1.06); }
   .ftp-ic { width: 20px; height: 20px; }
+
+  /* "Muted, tap for sound" cue — pulsing ring invites a click. */
+  .ftp.is-waiting .ftp-toggle { position: relative; animation: ftp-wait 1.8s var(--ease) infinite; }
+  @keyframes ftp-wait { 0%, 100% { box-shadow: 0 0 0 0 var(--flame); } 50% { box-shadow: 0 0 0 6px color-mix(in oklch, var(--flame) 0%, transparent); } }
 
   /* Equalizer bars — animate only while playing. */
   .ftp-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; }
@@ -176,5 +192,6 @@ import { THEME_SONG_URL } from '../lib/site';
   @media (prefers-reduced-motion: reduce) {
     .ftp { animation: none; }
     .ftp.is-playing .ftp-eq i { animation: none; height: 60%; }
+    .ftp.is-waiting .ftp-toggle { animation: none; box-shadow: 0 0 0 3px color-mix(in oklch, var(--flame) 40%, transparent); }
   }
 </style>
