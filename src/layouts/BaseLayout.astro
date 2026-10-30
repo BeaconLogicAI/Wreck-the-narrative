@@ -4,6 +4,7 @@ import '../styles/global.css';
 import GrainOverlay from '../components/GrainOverlay.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import FloatingThemePlayer from '../components/FloatingThemePlayer.astro';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, ANALYTICS } from '../lib/site';
 
 interface Props {
@@ -79,6 +80,7 @@ const ogImageAbs = new URL(ogImage, SITE_URL).href;
     <slot />
   </main>
   <Footer />
+  <FloatingThemePlayer />
 
   <script is:inline>
     // Scroll-in reveals (honors prefers-reduced-motion via CSS).

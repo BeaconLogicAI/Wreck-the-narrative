@@ -1,0 +1,180 @@
+---
+// Site-wide floating theme player. Renders only when THEME_SONG_URL is set.
+// Attempts autoplay on load; browsers block unmuted autoplay until the first
+// user gesture, so it falls back to starting on the first click/scroll/keypress
+// (and the floating button always works). Remembers play position + whether the
+// listener explicitly paused, so it continues smoothly across page navigations.
+import { THEME_SONG_URL } from '../lib/site';
+---
+{THEME_SONG_URL && (
+  <div class="ftp" data-ftp hidden aria-live="off">
+    <button type="button" class="ftp-toggle" aria-label="Play the theme song">
+      <svg class="ftp-ic ftp-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="ftp-ic ftp-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+    <span class="ftp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span class="ftp-label">Theme</span>
+    <button type="button" class="ftp-close" aria-label="Hide the theme player">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"/></svg>
+    </button>
+    <audio preload="auto" src={THEME_SONG_URL}></audio>
+  </div>
+)}
+
+<script>
+  (function () {
+    const root = document.querySelector('[data-ftp]') as HTMLElement | null;
+    if (!root) return;
+    const audio = root.querySelector('audio') as HTMLAudioElement;
+    const toggle = root.querySelector('.ftp-toggle') as HTMLButtonElement;
+    const closeBtn = root.querySelector('.ftp-close') as HTMLButtonElement;
+    const play = root.querySelector('.ftp-play') as SVGElement;
+    const pause = root.querySelector('.ftp-pause') as SVGElement;
+    if (!audio || !toggle) return;
+
+    const SS = window.sessionStorage;
+    const key = (k: string) => `wtn-theme-${k}`;
+    const get = (k: string) => { try { return SS.getItem(key(k)); } catch { return null; } };
+    const set = (k: string, v: string) => { try { SS.setItem(key(k), v); } catch { /* private mode */ } };
+
+    // If the listener hid it this session, stay gone.
+    if (get('hidden') === '1') return;
+    root.hidden = false;
+
+    // Resume play position across page loads.
+    const savedTime = parseFloat(get('time') || '0');
+    if (savedTime > 0) {
+      const seek = () => { try { audio.currentTime = savedTime; } catch { /* not seekable yet */ } };
+      if (audio.readyState >= 1) seek();
+      else audio.addEventListener('loadedmetadata', seek, { once: true });
+    }
+
+    const userPaused = () => get('paused') === '1';
+
+    function setPlaying(on: boolean) {
+      root.classList.toggle('is-playing', on);
+      play.hidden = on; pause.hidden = !on;
+      toggle.setAttribute('aria-label', on ? 'Pause the theme song' : 'Play the theme song');
+    }
+
+    function startPlayback() {
+      // Pause any inline players, then play.
+      document.dispatchEvent(new CustomEvent('wtn:audio-play', { detail: audio }));
+      return audio.play();
+    }
+
+    // Only one audio plays at a time — yield to inline players.
+    document.addEventListener('wtn:audio-play', (e) => {
+      if ((e as CustomEvent).detail !== audio) audio.pause();
+    });
+
+    audio.addEventListener('play', () => { set('paused', '0'); setPlaying(true); });
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('ended', () => { set('time', '0'); setPlaying(false); });
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.paused) set('time', String(audio.currentTime));
+    });
+
+    toggle.addEventListener('click', () => {
+      if (audio.paused) { set('paused', '0'); startPlayback(); }
+      else { set('paused', '1'); audio.pause(); }
+    });
+
+    closeBtn.addEventListener('click', () => {
+      audio.pause();
+      set('paused', '1');
+      set('hidden', '1');
+      root.hidden = true;
+    });
+
+    // Autoplay attempt — unless the listener chose to pause it earlier.
+    if (!userPaused()) {
+      startPlayback().catch(() => {
+        // Blocked: wait for the first real interaction, then start once.
+        const kick = () => {
+          if (userPaused()) return cleanup();
+          startPlayback().then(cleanup).catch(() => {});
+        };
+        const cleanup = () => {
+          ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((ev) =>
+            window.removeEventListener(ev, kick)
+          );
+        };
+        ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((ev) =>
+          window.addEventListener(ev, kick, { once: false, passive: true })
+        );
+      });
+    }
+  })();
+</script>
+
+<style>
+  .ftp {
+    position: fixed;
+    right: clamp(1rem, 3vw, 1.6rem);
+    bottom: clamp(1rem, 3vw, 1.6rem);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .4rem .55rem .4rem .4rem;
+    background: color-mix(in oklch, var(--bg-2) 86%, transparent);
+    backdrop-filter: blur(10px) saturate(1.3);
+    -webkit-backdrop-filter: blur(10px) saturate(1.3);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    box-shadow: 0 8px 30px oklch(0 0 0 / 0.35);
+    animation: ftp-in .5s var(--ease) both;
+  }
+  @keyframes ftp-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .ftp-toggle {
+    flex: none;
+    width: 42px; height: 42px;
+    display: grid; place-items: center;
+    border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--flame); color: oklch(0.16 0.02 45);
+    transition: background .25s var(--ease), transform .25s var(--ease);
+  }
+  .ftp-toggle:hover { background: var(--flame-hot); transform: scale(1.06); }
+  .ftp-ic { width: 20px; height: 20px; }
+
+  /* Equalizer bars — animate only while playing. */
+  .ftp-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; }
+  .ftp-eq i {
+    width: 3px; height: 30%;
+    background: var(--flame); border-radius: 2px;
+    transform-origin: bottom;
+  }
+  .ftp.is-playing .ftp-eq i { animation: ftp-eq .9s ease-in-out infinite; }
+  .ftp.is-playing .ftp-eq i:nth-child(2) { animation-delay: .18s; }
+  .ftp.is-playing .ftp-eq i:nth-child(3) { animation-delay: .36s; }
+  .ftp.is-playing .ftp-eq i:nth-child(4) { animation-delay: .54s; }
+  @keyframes ftp-eq { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+
+  .ftp-label {
+    font-family: "Oswald"; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .14em;
+    font-size: .68rem; color: var(--ink);
+    padding-right: .15rem;
+  }
+
+  .ftp-close {
+    flex: none;
+    width: 22px; height: 22px;
+    display: grid; place-items: center;
+    border-radius: 50%; border: 0; cursor: pointer;
+    background: transparent; color: var(--steel);
+    transition: color .2s var(--ease), background .2s var(--ease);
+  }
+  .ftp-close:hover { color: var(--ink); background: var(--bg-3); }
+  .ftp-close svg { width: 13px; height: 13px; }
+
+  @media (max-width: 560px) {
+    .ftp-label { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ftp { animation: none; }
+    .ftp.is-playing .ftp-eq i { animation: none; height: 60%; }
+  }
+</style>
